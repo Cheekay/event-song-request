@@ -6,12 +6,7 @@ from sqlalchemy import func
 
 @app.route('/')
 def index():
-    sort_by = request.args.get('sort_by', 'count')
-    if sort_by == 'count':
-        songs = SongRequest.query.order_by(SongRequest.count.desc()).all()
-    else:
-        songs = SongRequest.query.order_by(SongRequest.timestamp.desc()).all()
-    return render_template('index.html', songs=songs, sort_by=sort_by)
+    return render_template('index.html')
 
 @app.route('/submit_request', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -44,9 +39,18 @@ def submit_request():
         # Emit a Socket.IO event to update clients
         socketio.emit('song_list_updated')
 
-        return redirect(url_for('index'))
+        return redirect(url_for('song_list'))
     else:
         return "Song not found", 404
+
+@app.route('/song_list')
+def song_list():
+    sort_by = request.args.get('sort_by', 'count')
+    if sort_by == 'count':
+        songs = SongRequest.query.order_by(SongRequest.count.desc()).all()
+    else:
+        songs = SongRequest.query.order_by(SongRequest.timestamp.desc()).all()
+    return render_template('song_list.html', songs=songs, sort_by=sort_by)
 
 @app.route('/get_song_list')
 @limiter.limit("10 per minute")
