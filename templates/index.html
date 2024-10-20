@@ -1,20 +1,98 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-4">Submit a Song Request</h1>
-<form action="{{ url_for('submit_request') }}" method="post">
-    <div class="mb-3">
-        <label for="song_title" class="form-label">Song Title</label>
-        <input type="text" class="form-control" id="song_title" name="song_title" required>
+<div class="row">
+    <div class="col-md-6">
+        <h2 class="mb-4">Submit a Song Request</h2>
+        <form action="{{ url_for('submit_request') }}" method="post">
+            <div class="mb-3">
+                <label for="song_title" class="form-label">Song Title</label>
+                <input type="text" class="form-control" id="song_title" name="song_title" required>
+            </div>
+            <div class="mb-3">
+                <label for="artist_name" class="form-label">Artist Name</label>
+                <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="artist_name" class="form-label">Artist Name</label>
-        <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+    <div class="col-md-6">
+        <h2 class="mb-4">Requested Songs</h2>
+        <div class="mb-3">
+            <label for="sort_select" class="form-label">Sort by:</label>
+            <select id="sort_select" class="form-select" onchange="updateSortOrder()">
+                <option value="count" {% if sort_by == 'count' %}selected{% endif %}>Popularity</option>
+                <option value="timestamp" {% if sort_by == 'timestamp' %}selected{% endif %}>Most Recent</option>
+            </select>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Song Title</th>
+                    <th>Artist</th>
+                    <th>Requests</th>
+                    <th>Last Requested</th>
+                </tr>
+            </thead>
+            <tbody id="song_list">
+                {% for song in songs %}
+                <tr>
+                    <td>{{ song.song_title }}</td>
+                    <td>{{ song.artist_name }}</td>
+                    <td>{{ song.count }}</td>
+                    <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <div class="mb-3">
-        <label for="username" class="form-label">Your Name</label>
-        <input type="text" class="form-control" id="username" name="username" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit Request</button>
-</form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupWebSocket();
+    updateSongList();
+});
+
+function setupWebSocket() {
+    const socket = io();
+    socket.on('song_list_updated', function() {
+        updateSongList();
+    });
+}
+
+function updateSortOrder() {
+    const sortSelect = document.getElementById('sort_select');
+    if (sortSelect) {
+        const sortBy = sortSelect.value;
+        updateSongList(sortBy);
+    }
+}
+
+function updateSongList(sortBy = 'count') {
+    fetch(`/get_song_list?sort_by=${sortBy}`)
+        .then(response => response.json())
+        .then(songs => {
+            const songListElement = document.getElementById('song_list');
+            songListElement.innerHTML = '';
+            
+            songs.forEach(song => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${song.title}</td>
+                    <td>${song.artist}</td>
+                    <td>${song.count}</td>
+                    <td>${song.timestamp}</td>
+                `;
+                songListElement.appendChild(row);
+            });
+        });
+}
+</script>
 {% endblock %}
