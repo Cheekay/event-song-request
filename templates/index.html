@@ -1,20 +1,111 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-4">Submit a Song Request</h1>
-<form action="{{ url_for('submit_request') }}" method="post">
-    <div class="mb-3">
-        <label for="song_title" class="form-label">Song Title</label>
-        <input type="text" class="form-control" id="song_title" name="song_title" required>
+<div class="row">
+    <div class="col-md-4">
+        <h2 class="mb-4">Submit a Song Request</h2>
+        <form id="song-request-form" action="{{ url_for('submit_request') }}" method="post">
+            <div class="mb-3">
+                <label for="song_title" class="form-label">Song Title</label>
+                <input type="text" class="form-control" id="song_title" name="song_title" required>
+            </div>
+            <div class="mb-3">
+                <label for="artist_name" class="form-label">Artist Name</label>
+                <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="artist_name" class="form-label">Artist Name</label>
-        <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+    <div class="col-md-8">
+        <h2 class="mb-4">Requested Songs</h2>
+        <div class="mb-3">
+            <label for="sort_select" class="form-label">Sort by:</label>
+            <select id="sort_select" class="form-select" onchange="updateSongList()">
+                <option value="count">Popularity</option>
+                <option value="timestamp">Most Recent</option>
+            </select>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Song Title</th>
+                    <th>Artist</th>
+                    <th>Requests</th>
+                    <th>Last Requested</th>
+                </tr>
+            </thead>
+            <tbody id="song_list">
+                <!-- Song list will be populated here -->
+            </tbody>
+        </table>
     </div>
-    <div class="mb-3">
-        <label for="username" class="form-label">Your Name</label>
-        <input type="text" class="form-control" id="username" name="username" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit Request</button>
-</form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupWebSocket();
+    updateSongList();
+
+    const form = document.getElementById('song-request-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitSongRequest();
+    });
+});
+
+function setupWebSocket() {
+    const socket = io();
+    socket.on('song_list_updated', function() {
+        updateSongList();
+    });
+}
+
+function updateSongList() {
+    const songListElement = document.getElementById('song_list');
+    const sortSelect = document.getElementById('sort_select');
+    const sortBy = sortSelect.value;
+    
+    fetch(`/get_song_list?sort_by=${sortBy}`)
+        .then(response => response.json())
+        .then(songs => {
+            songListElement.innerHTML = '';
+            
+            songs.forEach(song => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${song.title}</td>
+                    <td>${song.artist}</td>
+                    <td>${song.count}</td>
+                    <td>${song.timestamp}</td>
+                `;
+                songListElement.appendChild(row);
+            });
+        });
+}
+
+function submitSongRequest() {
+    const form = document.getElementById('song-request-form');
+    const formData = new FormData(form);
+
+    fetch('/submit_request', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            form.reset();
+            updateSongList();
+        } else {
+            alert('Failed to submit song request');
+        }
+    });
+}
+</script>
 {% endblock %}

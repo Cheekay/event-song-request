@@ -39,18 +39,9 @@ def submit_request():
         # Emit a Socket.IO event to update clients
         socketio.emit('song_list_updated')
 
-        return redirect(url_for('song_list'))
+        return jsonify({'success': True})
     else:
-        return "Song not found", 404
-
-@app.route('/song_list')
-def song_list():
-    sort_by = request.args.get('sort_by', 'count')
-    if sort_by == 'count':
-        songs = SongRequest.query.order_by(SongRequest.count.desc()).all()
-    else:
-        songs = SongRequest.query.order_by(SongRequest.timestamp.desc()).all()
-    return render_template('song_list.html', songs=songs, sort_by=sort_by)
+        return jsonify({'success': False, 'message': 'Song not found'}), 404
 
 @app.route('/get_song_list')
 @limiter.limit("10 per minute")
