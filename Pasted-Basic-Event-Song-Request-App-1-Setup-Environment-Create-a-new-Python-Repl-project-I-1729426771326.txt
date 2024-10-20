@@ -1,0 +1,48 @@
+Basic Event Song Request App
+
+1. **Setup Environment**
+   - Create a new Python Repl project.
+   - Install necessary libraries: `youtube-search-python`, `flask`, and `sqlite3` (Replit supports SQLite for lightweight databases).
+   - Add Replit's environment variables for sensitive data (like the API key) using the Secrets tool.
+
+2. **Create Flask Backend**
+   - Set up a simple Flask server with routes for:
+     1. Submitting a song request (`/submit_request`).
+     2. Retrieving the list of requested songs (`/get_song_list`).
+
+3. **YouTube API Integration**
+   - Use `youtube-search-python` to search for songs based on the guest’s request.
+   - Fetch song details (like song title and artist name).
+   - Include error handling in case a song is not found or API fails.
+
+4. **Create SQLite Database**
+   - Set up an SQLite database with tables:
+     1. **Users**: `username`, `event_id`.
+     2. **Requests**: `song_title`, `artist_name`, `timestamp`, `count`, `username`.
+   - Write functions to insert a new song request and update the count if it’s already requested.
+
+5. **Handle Song Requests**
+   - When a user submits a song, check if it’s already in the database for the event.
+   - If the song exists, increment the count. If not, add a new entry with a count of 1.
+
+6. **Create Frontend for Event Guests and DJ**
+   - Create simple HTML forms:
+     1. For guests to submit song requests.
+     2. For displaying the requested song list (sorted by count or timestamp).
+   - Use AJAX to fetch the song list periodically without reloading the page.
+
+7. **Deploy on Replit**
+   - Use Replit’s built-in deployment to make the app live.
+   - Share the app URL with event guests.
+
+8. **Replit-Specific Tools**
+   - Use Replit's "Secrets" tool to store API keys securely.
+   - Use the built-in SQLite browser to view and test your database directly on Replit.
+
+### Key Challenges
+   - **Rate-limiting**: YouTube API may throttle requests if too many guests submit requests at once. Mitigate by limiting submissions per user or caching popular requests.
+   - **Database management**: Ensure song requests are updated accurately, especially when multiple guests request the same song.
+   - **Frontend syncing**: Ensure the list of requested songs is updated live for both DJ and guests without overloading the server.
+
+### Summary
+This MVP allows event guests to submit song requests, which are searched through YouTube’s API, tracked, and displayed for both guests and DJs in real time. By focusing on simplicity—managing song requests and updating counts—you can ensure the core functionality works effectively before adding any extra features.
