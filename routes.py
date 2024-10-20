@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, jsonify
-from app import app, db, socketio
+from app import app, db, socketio, limiter
 from models import SongRequest
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
@@ -9,6 +9,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/submit_request', methods=['POST'])
+@limiter.limit("5 per minute")
 def submit_request():
     song_title = request.form['song_title']
     artist_name = request.form['artist_name']
@@ -52,6 +53,7 @@ def song_list():
     return render_template('song_list.html', songs=songs, sort_by=sort_by)
 
 @app.route('/get_song_list')
+@limiter.limit("10 per minute")
 def get_song_list():
     sort_by = request.args.get('sort_by', 'count')
     if sort_by == 'count':
@@ -76,6 +78,7 @@ def dj_interface():
     return render_template('dj_interface.html', songs=songs)
 
 @app.route('/remove_song/<int:song_id>', methods=['POST'])
+@limiter.limit("10 per minute")
 def remove_song(song_id):
     song = SongRequest.query.get_or_404(song_id)
     db.session.delete(song)
