@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Requested Songs</h1>
+<div class="mb-3">
+    <label for="sort_select" class="form-label">Sort by:</label>
+    <select id="sort_select" class="form-select" onchange="updateSortOrder()">
+        <option value="count" {% if sort_by == 'count' %}selected{% endif %}>Popularity</option>
+        <option value="timestamp" {% if sort_by == 'timestamp' %}selected{% endif %}>Most Recent</option>
+    </select>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Song Title</th>
+            <th>Artist</th>
+            <th>Requests</th>
+            <th>Last Requested</th>
+        </tr>
+    </thead>
+    <tbody id="song_list">
+        {% for song in songs %}
+        <tr>
+            <td>{{ song.song_title }}</td>
+            <td>{{ song.artist_name }}</td>
+            <td>{{ song.count }}</td>
+            <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

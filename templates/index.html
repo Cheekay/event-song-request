@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Submit a Song Request</h1>
+<form action="{{ url_for('submit_request') }}" method="post">
+    <div class="mb-3">
+        <label for="song_title" class="form-label">Song Title</label>
+        <input type="text" class="form-control" id="song_title" name="song_title" required>
+    </div>
+    <div class="mb-3">
+        <label for="artist_name" class="form-label">Artist Name</label>
+        <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+    </div>
+    <div class="mb-3">
+        <label for="username" class="form-label">Your Name</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Request</button>
+</form>
+{% endblock %}
