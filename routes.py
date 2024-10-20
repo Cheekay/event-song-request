@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, jsonify
-from app import app, db
+from app import app, db, socketio
 from models import SongRequest
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
@@ -35,6 +35,9 @@ def submit_request():
 
         db.session.commit()
 
+        # Emit a Socket.IO event to update clients
+        socketio.emit('song_list_updated')
+
         return redirect(url_for('song_list'))
     else:
         return "Song not found", 404
@@ -66,3 +69,11 @@ def get_song_list():
         })
     
     return jsonify(song_list)
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')

@@ -1,15 +1,33 @@
+let socket;
+
 document.addEventListener('DOMContentLoaded', function() {
     const sortSelect = document.getElementById('sort_select');
     if (sortSelect) {
         sortSelect.addEventListener('change', updateSortOrder);
     }
 
-    // If we're on the song list page, update it every 30 seconds
+    // If we're on the song list page, set up WebSocket connection
     if (document.getElementById('song_list')) {
+        setupWebSocket();
         updateSongList();
-        setInterval(updateSongList, 30000);
     }
 });
+
+function setupWebSocket() {
+    socket = io();
+
+    socket.on('connect', function() {
+        console.log('Connected to WebSocket');
+    });
+
+    socket.on('song_list_updated', function() {
+        updateSongList();
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Disconnected from WebSocket');
+    });
+}
 
 function updateSortOrder() {
     const sortSelect = document.getElementById('sort_select');
