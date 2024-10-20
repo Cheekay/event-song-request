@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">DJ Interface - Manage Playlist</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Song Title</th>
+            <th>Artist</th>
+            <th>Requests</th>
+            <th>Last Requested</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="dj_song_list">
+        {% for song in songs %}
+        <tr>
+            <td>{{ song.song_title }}</td>
+            <td>{{ song.artist_name }}</td>
+            <td>{{ song.count }}</td>
+            <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const songList = document.getElementById('dj_song_list');
+    songList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-song')) {
+            const songId = e.target.getAttribute('data-song-id');
+            removeSong(songId);
+        }
+    });
+
+    // Set up WebSocket connection for real-time updates
+    setupWebSocket();
+});
+
+function setupWebSocket() {
+    const socket = io();
+    socket.on('song_list_updated', function() {
+        location.reload();
+    });
+}
+
+function removeSong(songId) {
+    fetch(`/remove_song/${songId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`button[data-song-id="${songId}"]`).closest('tr');
+                row.remove();
+            } else {
+                alert('Failed to remove song');
+            }
+        });
+}
+</script>
+{% endblock %}

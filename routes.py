@@ -70,6 +70,19 @@ def get_song_list():
     
     return jsonify(song_list)
 
+@app.route('/dj_interface')
+def dj_interface():
+    songs = SongRequest.query.order_by(SongRequest.count.desc()).all()
+    return render_template('dj_interface.html', songs=songs)
+
+@app.route('/remove_song/<int:song_id>', methods=['POST'])
+def remove_song(song_id):
+    song = SongRequest.query.get_or_404(song_id)
+    db.session.delete(song)
+    db.session.commit()
+    socketio.emit('song_list_updated')
+    return jsonify({'success': True})
+
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')

@@ -1,5 +1,3 @@
-let socket;
-
 document.addEventListener('DOMContentLoaded', function() {
     const sortSelect = document.getElementById('sort_select');
     if (sortSelect) {
@@ -14,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupWebSocket() {
-    socket = io();
+    const socket = io();
 
     socket.on('connect', function() {
         console.log('Connected to WebSocket');
