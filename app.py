@@ -5,6 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_socketio import SocketIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from models import SongRequest
 
 class Base(DeclarativeBase):
     pass
@@ -33,5 +34,10 @@ with app.app_context():
     import routes
     db.create_all()
 
+# from models import SongRequest
+# import routes
+# db.create_all()
+
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    # socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=80, debug=True)
