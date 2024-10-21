@@ -78,6 +78,18 @@ def remove_song(song_id):
     socketio.emit('song_list_updated')
     return jsonify({'success': True})
 
+@app.route('/remove_all_songs', methods=['POST'])
+@limiter.limit("5 per minute")
+def remove_all_songs():
+    try:
+        num_deleted = db.session.query(SongRequest).delete()
+        db.session.commit()
+        socketio.emit('song_list_updated')
+        return jsonify({'success': True, 'songs_removed': num_deleted})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/search_songs')
 @limiter.limit("10 per minute")
 def search_songs():
