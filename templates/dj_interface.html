@@ -1,33 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-4">DJ Interface - Manage Playlist</h1>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Song Title</th>
-            <th>Artist</th>
-            <th>Requester</th>
-            <th>Requests</th>
-            <th>Last Requested</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody id="dj_song_list">
-        {% for song in songs %}
-        <tr>
-            <td>{{ song.song_title }}</td>
-            <td>{{ song.artist_name }}</td>
-            <td>{{ song.username }}</td>
-            <td>{{ song.count }}</td>
-            <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>
-                <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container-fluid">
+    <h1 class="mb-4">DJ Interface - Manage Playlist</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Song Title</th>
+                    <th>Artist</th>
+                    <th>Requester</th>
+                    <th>Requests</th>
+                    <th>Last Requested</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dj_song_list">
+                {% for song in songs %}
+                <tr>
+                    <td>{{ song.song_title }}</td>
+                    <td>{{ song.artist_name }}</td>
+                    <td>{{ song.username }}</td>
+                    <td>{{ song.count }}</td>
+                    <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-song w-100" data-song-id="{{ song.id }}">Remove</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
