@@ -86,9 +86,9 @@ function updateSongList() {
             songs.forEach(song => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="text-break d-none d-md-table-cell">${song.title}</td>
-                    <td class="text-break d-none d-md-table-cell">${song.artist}</td>
-                    <td class="text-break d-none d-md-table-cell">${song.username}</td>
+                    <td class="d-none d-md-table-cell text-break">${song.title}</td>
+                    <td class="d-none d-md-table-cell text-break">${song.artist}</td>
+                    <td class="d-none d-md-table-cell text-break">${song.username}</td>
                     <td>${song.count}</td>
                     <td class="d-none d-sm-table-cell">${song.timestamp}</td>
                 `;
