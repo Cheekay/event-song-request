@@ -44,6 +44,7 @@ def get_song_list():
     song_list = []
     for song in songs:
         song_list.append({
+            'id': song.id,
             'title': song.song_title,
             'artist': song.artist_name,
             'count': song.count,
@@ -82,6 +83,14 @@ def search_songs():
         })
     
     return jsonify(songs)
+
+@app.route('/get_requesters/<int:song_id>')
+@limiter.limit("10 per minute")
+def get_requesters(song_id):
+    song = SongRequest.query.get_or_404(song_id)
+    requesters = SongRequest.query.filter_by(song_title=song.song_title, artist_name=song.artist_name).with_entities(SongRequest.username).distinct().all()
+    requester_list = [requester.username for requester in requesters]
+    return jsonify({'requesters': requester_list})
 
 @socketio.on('connect')
 def handle_connect():
