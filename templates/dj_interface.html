@@ -20,7 +20,7 @@
             <td>{{ song.artist_name }}</td>
             <td>{{ song.username }}</td>
             <td>{{ song.count }}</td>
-            <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ song.timestamp.strftime('%m-%d %H:%M') }}</td>
             <td>
                 <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
             </td>
