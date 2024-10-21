@@ -2,9 +2,7 @@
 
 {% block content %}
 <h1 class="mb-4">DJ Interface - Manage Playlist</h1>
-<div class="mb-3">
-    <button id="remove-all-btn" class="btn btn-danger">Remove All Songs</button>
-</div>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -31,6 +29,10 @@
         {% endfor %}
     </tbody>
 </table>
+
+<div class="text-center mt-5">
+    <button id="remove-all-btn" class="btn btn-danger btn-lg">Remove All Songs</button>
+</div>
 {% endblock %}
 
 {% block extra_js %}
