@@ -3,7 +3,6 @@ from app import app, db, socketio, limiter
 from models import SongRequest
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
-from datetime import datetime
 
 @app.route('/')
 def index():
@@ -48,8 +47,8 @@ def get_song_list():
             'title': song.song_title,
             'artist': song.artist_name,
             'count': song.count,
-            'timestamp': song.timestamp.strftime('%m-%d %H:%M'),
-            'username': song.username
+            'timestamp': song.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'username': song.username  # Add the username to the response
         })
     
     return jsonify(song_list)
