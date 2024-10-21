@@ -1,9 +1,16 @@
 import os
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 from flask_socketio import SocketIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from models import db, SongRequest
+
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+socketio = SocketIO()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
@@ -11,7 +18,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///song_requests.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
-socketio = SocketIO(app)
+socketio.init_app(app)
 
 # Initialize Flask-Limiter
 limiter = Limiter(
@@ -21,9 +28,9 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-import routes
-
 with app.app_context():
+    import models
+    import routes
     db.create_all()
 
 if __name__ == "__main__":
