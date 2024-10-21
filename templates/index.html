@@ -37,6 +37,7 @@
                     <th>Artist</th>
                     <th>Requests</th>
                     <th>Last Requested</th>
+                    <th>Requester</th>
                 </tr>
             </thead>
             <tbody id="song_list">
@@ -87,6 +88,7 @@ function updateSongList() {
                     <td>${song.artist}</td>
                     <td>${song.count}</td>
                     <td>${song.timestamp}</td>
+                    <td>${song.username}</td>
                 `;
                 songListElement.appendChild(row);
             });

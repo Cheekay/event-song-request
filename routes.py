@@ -47,7 +47,8 @@ def get_song_list():
             'title': song.song_title,
             'artist': song.artist_name,
             'count': song.count,
-            'timestamp': song.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            'timestamp': song.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'username': song.username  # Add the username to the response
         })
     
     return jsonify(song_list)
