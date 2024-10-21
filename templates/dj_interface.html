@@ -22,7 +22,7 @@
                     <td class="text-break">{{ song.artist_name }}</td>
                     <td class="d-none d-md-table-cell text-break">{{ song.username }}</td>
                     <td>{{ song.count }}</td>
-                    <td class="d-none d-md-table-cell">{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="d-none d-md-table-cell">{{ song.timestamp.strftime('%m-%d %H:%M') }}</td>
                     <td>
                         <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
                         <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#details-{{ loop.index }}" aria-expanded="false" aria-controls="details-{{ loop.index }}">
@@ -35,7 +35,7 @@
                         <div class="collapse" id="details-{{ loop.index }}">
                             <div class="card card-body">
                                 <p><strong>Requester:</strong> {{ song.username }}</p>
-                                <p><strong>Last Requested:</strong> {{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                <p><strong>Last Requested:</strong> {{ song.timestamp.strftime('%m-%d %H:%M') }}</p>
                             </div>
                         </div>
                     </td>
