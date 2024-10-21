@@ -11,4 +11,5 @@ dependencies = [
     "youtube-search-python>=1.6.6",
     "flask-socketio>=5.4.1",
     "flask-limiter>=3.8.0",
+    "pytz>=2024.2",
 ]

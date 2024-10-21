@@ -1,8 +1,10 @@
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify, session
 from app import app, db, socketio, limiter
 from models import SongRequest
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
+import pytz
+from datetime import datetime
 
 @app.route('/')
 def index():
@@ -36,6 +38,13 @@ def submit_request():
 @limiter.limit("10 per minute")
 def get_song_list():
     sort_by = request.args.get('sort_by', 'count')
+    user_timezone = request.args.get('timezone', 'UTC')
+    
+    try:
+        pytz.timezone(user_timezone)
+    except pytz.exceptions.UnknownTimeZoneError:
+        user_timezone = 'UTC'
+
     if sort_by == 'count':
         songs = SongRequest.query.order_by(SongRequest.count.desc()).all()
     else:
@@ -43,11 +52,13 @@ def get_song_list():
     
     song_list = []
     for song in songs:
+        utc_time = song.timestamp.replace(tzinfo=pytz.UTC)
+        local_time = utc_time.astimezone(pytz.timezone(user_timezone))
         song_list.append({
             'title': song.song_title,
             'artist': song.artist_name,
             'count': song.count,
-            'timestamp': song.timestamp.strftime('%m-%d %H:%M'),
+            'timestamp': local_time.strftime('%m-%d %H:%M'),
             'username': song.username
         })
     

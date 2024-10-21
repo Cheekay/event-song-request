@@ -77,8 +77,9 @@ function updateSongList() {
     const songListElement = document.getElementById('song_list');
     const sortSelect = document.getElementById('sort_select');
     const sortBy = sortSelect.value;
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     
-    fetch(`/get_song_list?sort_by=${sortBy}`)
+    fetch(`/get_song_list?sort_by=${sortBy}&timezone=${encodeURIComponent(userTimezone)}`)
         .then(response => response.json())
         .then(songs => {
             songListElement.innerHTML = '';
