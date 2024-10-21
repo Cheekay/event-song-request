@@ -7,6 +7,7 @@
         <tr>
             <th>Song Title</th>
             <th>Artist</th>
+            <th>Requester</th>
             <th>Requests</th>
             <th>Last Requested</th>
             <th>Actions</th>
@@ -17,6 +18,7 @@
         <tr>
             <td>{{ song.song_title }}</td>
             <td>{{ song.artist_name }}</td>
+            <td>{{ song.username }}</td>
             <td>{{ song.count }}</td>
             <td>{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
             <td>
