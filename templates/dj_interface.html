@@ -7,24 +7,37 @@
         <table class="table table-striped table-sm">
             <thead>
                 <tr>
-                    <th class="d-none d-md-table-cell">Song Title</th>
-                    <th class="d-none d-md-table-cell">Artist</th>
+                    <th>Song Title</th>
+                    <th>Artist</th>
                     <th class="d-none d-md-table-cell">Requester</th>
                     <th>Requests</th>
-                    <th class="d-none d-sm-table-cell">Last Requested</th>
+                    <th class="d-none d-md-table-cell">Last Requested</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="dj_song_list">
                 {% for song in songs %}
                 <tr>
-                    <td class="d-none d-md-table-cell text-break">{{ song.song_title }}</td>
-                    <td class="d-none d-md-table-cell text-break">{{ song.artist_name }}</td>
+                    <td class="text-break">{{ song.song_title }}</td>
+                    <td class="text-break">{{ song.artist_name }}</td>
                     <td class="d-none d-md-table-cell text-break">{{ song.username }}</td>
                     <td>{{ song.count }}</td>
-                    <td class="d-none d-sm-table-cell">{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="d-none d-md-table-cell">{{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     <td>
-                        <button class="btn btn-danger btn-sm remove-song w-100" data-song-id="{{ song.id }}">Remove</button>
+                        <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
+                        <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#details-{{ loop.index }}" aria-expanded="false" aria-controls="details-{{ loop.index }}">
+                            More Details
+                        </button>
+                    </td>
+                </tr>
+                <tr class="d-md-none">
+                    <td colspan="6">
+                        <div class="collapse" id="details-{{ loop.index }}">
+                            <div class="card card-body">
+                                <p><strong>Requester:</strong> {{ song.username }}</p>
+                                <p><strong>Last Requested:</strong> {{ song.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -61,7 +74,11 @@ function removeSong(songId) {
         .then(data => {
             if (data.success) {
                 const row = document.querySelector(`button[data-song-id="${songId}"]`).closest('tr');
+                const detailsRow = row.nextElementSibling;
                 row.remove();
+                if (detailsRow && detailsRow.classList.contains('d-md-none')) {
+                    detailsRow.remove();
+                }
             } else {
                 alert('Failed to remove song');
             }
