@@ -26,16 +26,16 @@
                     <td>
                         <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
                         <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#details-{{ loop.index }}" aria-expanded="false" aria-controls="details-{{ loop.index }}">
-                            More Details
+                            Details
                         </button>
                     </td>
                 </tr>
                 <tr class="d-md-none">
-                    <td colspan="6">
+                    <td colspan="4">
                         <div class="collapse" id="details-{{ loop.index }}">
                             <div class="card card-body">
-                                <p><strong>Requester:</strong> {{ song.username }}</p>
-                                <p><strong>Last Requested:</strong> {{ song.timestamp.strftime('%m-%d %H:%M') }}</p>
+                                <p class="mb-1"><strong>Requester:</strong> {{ song.username }}</p>
+                                <p class="mb-0"><strong>Last Requested:</strong> {{ song.timestamp.strftime('%m-%d %H:%M') }}</p>
                             </div>
                         </div>
                     </td>

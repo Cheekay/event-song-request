@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="row g-4">
-    <div class="col-12 col-lg-4 mb-4">
+    <div class="col-12 col-md-4 mb-4">
         <h2 class="mb-3 fs-4">Submit a Song Request</h2>
         <form id="song-request-form" action="{{ url_for('submit_request') }}" method="post">
             <div class="mb-3">
@@ -21,7 +21,7 @@
             <button type="submit" class="btn btn-primary w-100">Submit Request</button>
         </form>
     </div>
-    <div class="col-12 col-lg-8">
+    <div class="col-12 col-md-8">
         <h2 class="mb-3 fs-4">Requested Songs</h2>
         <div class="mb-3">
             <label for="sort_select" class="form-label">Sort by:</label>
@@ -94,7 +94,7 @@ function updateSongList() {
                     <td class="d-none d-md-table-cell">${song.timestamp}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#details-${index}" aria-expanded="false" aria-controls="details-${index}">
-                            More Details
+                            Details
                         </button>
                     </td>
                 `;
@@ -103,11 +103,11 @@ function updateSongList() {
                 const detailsRow = document.createElement('tr');
                 detailsRow.className = 'd-md-none';
                 detailsRow.innerHTML = `
-                    <td colspan="6">
+                    <td colspan="4">
                         <div class="collapse" id="details-${index}">
                             <div class="card card-body">
-                                <p><strong>Requester:</strong> ${song.username}</p>
-                                <p><strong>Last Requested:</strong> ${song.timestamp}</p>
+                                <p class="mb-1"><strong>Requester:</strong> ${song.username}</p>
+                                <p class="mb-0"><strong>Last Requested:</strong> ${song.timestamp}</p>
                             </div>
                         </div>
                     </td>
