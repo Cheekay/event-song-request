@@ -34,11 +34,11 @@
             <table class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th>Song Title</th>
-                        <th>Artist</th>
-                        <th>Requester</th>
+                        <th class="d-none d-md-table-cell">Song Title</th>
+                        <th class="d-none d-md-table-cell">Artist</th>
+                        <th class="d-none d-md-table-cell">Requester</th>
                         <th>Requests</th>
-                        <th>Last Requested</th>
+                        <th class="d-none d-sm-table-cell">Last Requested</th>
                     </tr>
                 </thead>
                 <tbody id="song_list">
@@ -86,11 +86,11 @@ function updateSongList() {
             songs.forEach(song => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="text-break">${song.title}</td>
-                    <td class="text-break">${song.artist}</td>
-                    <td class="text-break">${song.username}</td>
+                    <td class="text-break d-none d-md-table-cell">${song.title}</td>
+                    <td class="text-break d-none d-md-table-cell">${song.artist}</td>
+                    <td class="text-break d-none d-md-table-cell">${song.username}</td>
                     <td>${song.count}</td>
-                    <td>${song.timestamp}</td>
+                    <td class="d-none d-sm-table-cell">${song.timestamp}</td>
                 `;
                 songListElement.appendChild(row);
             });
