@@ -2,27 +2,32 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-5">
         <h2 class="mb-4">Submit a Song Request</h2>
-        <form id="song-request-form" action="{{ url_for('submit_request') }}" method="post">
-            <div class="mb-3">
-                <label for="song_title" class="form-label">Song Title</label>
-                <input type="text" class="form-control" id="song_title" name="song_title" required>
-                <div id="song_suggestions" class="list-group mt-2"></div>
-            </div>
-            <div class="mb-3">
-                <label for="artist_name" class="form-label">Artist Name</label>
-                <input type="text" class="form-control" id="artist_name" name="artist_name" required>
-            </div>
-            <div class="mb-3">
-                <label for="username" class="form-label">Your Name</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit Request</button>
-        </form>
+        <div class="mb-5 pb-5">
+            <form id="song-request-form" action="{{ url_for('submit_request') }}" method="post">
+                <div class="mb-3">
+                    <label for="song_title" class="form-label">Song Title</label>
+                    <input type="text" class="form-control" id="song_title" name="song_title" required>
+                    <div id="song_suggestions" class="list-group mt-2"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="artist_name" class="form-label">Artist Name</label>
+                    <input type="text" class="form-control" id="artist_name" name="artist_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Your Name</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+            </form>
+        </div>
     </div>
-    <div class="col-md-8">
-        <h2 class="mb-4">Requested Songs</h2>
+    <div class="col-md-1">
+        <div class="vr h-100 mx-auto"></div>
+    </div>
+    <div class="col-md-6">
+        <h2 class="mb-4 mt-5">Requested Songs</h2>
         <div class="mb-3">
             <label for="sort_select" class="form-label">Sort by:</label>
             <select id="sort_select" class="form-select" onchange="updateSongList()">
