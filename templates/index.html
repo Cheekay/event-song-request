@@ -137,6 +137,9 @@ function searchSongs() {
                 });
                 suggestionsElement.appendChild(item);
             });
+        })
+        .catch(error => {
+            console.error('Error searching songs:', error);
         });
 }
 
