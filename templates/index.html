@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('requester-link')) {
             e.preventDefault();
             const songId = e.target.getAttribute('data-song-id');
+            console.log('Clicked on requester link for song ID:', songId); // Debug log
             showRequesters(songId);
         }
     });
@@ -114,6 +115,9 @@ function updateSongList() {
                 `;
                 songListElement.appendChild(row);
             });
+        })
+        .catch(error => {
+            console.error('Error updating song list:', error);
         });
 }
 
@@ -133,6 +137,9 @@ function submitSongRequest() {
         } else {
             alert('Failed to submit song request');
         }
+    })
+    .catch(error => {
+        console.error('Error submitting song request:', error);
     });
 }
 
@@ -178,9 +185,11 @@ function debounce(func, delay) {
 }
 
 function showRequesters(songId) {
+    console.log('Fetching requesters for song ID:', songId); // Debug log
     fetch(`/get_requesters/${songId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Received requester data:', data); // Debug log
             const requesterList = document.getElementById('requesterList');
             requesterList.innerHTML = '';
             data.requesters.forEach(requester => {
