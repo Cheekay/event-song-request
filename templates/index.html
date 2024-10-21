@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="row g-4">
-    <div class="col-12 col-md-4">
-        <h2 class="mb-4 fs-3">Submit a Song Request</h2>
+    <div class="col-12 col-md-4 mb-4">
+        <h2 class="mb-3 fs-4">Submit a Song Request</h2>
         <form id="song-request-form" action="{{ url_for('submit_request') }}" method="post">
             <div class="mb-3">
                 <label for="song_title" class="form-label">Song Title</label>
@@ -21,8 +21,8 @@
             <button type="submit" class="btn btn-primary w-100">Submit Request</button>
         </form>
     </div>
-    <div class="col-12 col-md-8 mt-4 mt-md-0">
-        <h2 class="mb-4 fs-3">Requested Songs</h2>
+    <div class="col-12 col-md-8">
+        <h2 class="mb-3 fs-4">Requested Songs</h2>
         <div class="mb-3">
             <label for="sort_select" class="form-label">Sort by:</label>
             <select id="sort_select" class="form-select" onchange="updateSongList()">
