@@ -8,6 +8,7 @@
             <div class="mb-3">
                 <label for="song_title" class="form-label">Song Title</label>
                 <input type="text" class="form-control" id="song_title" name="song_title" required>
+                <div id="song_suggestions" class="list-group mt-2"></div>
             </div>
             <div class="mb-3">
                 <label for="artist_name" class="form-label">Artist Name</label>
@@ -57,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         submitSongRequest();
     });
+
+    const songTitleInput = document.getElementById('song_title');
+    songTitleInput.addEventListener('input', debounce(searchSongs, 300));
 });
 
 function setupWebSocket() {
@@ -106,6 +110,44 @@ function submitSongRequest() {
             alert('Failed to submit song request');
         }
     });
+}
+
+function searchSongs() {
+    const query = document.getElementById('song_title').value;
+    if (query.length < 3) {
+        document.getElementById('song_suggestions').innerHTML = '';
+        return;
+    }
+
+    fetch(`/search_songs?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const suggestionsElement = document.getElementById('song_suggestions');
+            suggestionsElement.innerHTML = '';
+            data.forEach(song => {
+                const item = document.createElement('a');
+                item.href = '#';
+                item.classList.add('list-group-item', 'list-group-item-action');
+                item.textContent = `${song.title} - ${song.artist}`;
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('song_title').value = song.title;
+                    document.getElementById('artist_name').value = song.artist;
+                    suggestionsElement.innerHTML = '';
+                });
+                suggestionsElement.appendChild(item);
+            });
+        });
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(context, args), delay);
+    };
 }
 </script>
 {% endblock %}

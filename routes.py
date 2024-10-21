@@ -15,33 +15,22 @@ def submit_request():
     artist_name = request.form['artist_name']
     username = request.form['username']
 
-    # Search for the song on YouTube
-    search_query = f"{song_title} {artist_name}"
-    videos_search = VideosSearch(search_query, limit=1)
-    results = videos_search.result()
+    # Check if the song already exists in the database
+    existing_request = SongRequest.query.filter_by(song_title=song_title, artist_name=artist_name).first()
 
-    if results['result']:
-        song_title = results['result'][0]['title']
-        artist_name = results['result'][0]['channel']['name']
-
-        # Check if the song already exists in the database
-        existing_request = SongRequest.query.filter_by(song_title=song_title, artist_name=artist_name).first()
-
-        if existing_request:
-            existing_request.count += 1
-            existing_request.timestamp = func.now()
-        else:
-            new_request = SongRequest(song_title=song_title, artist_name=artist_name, username=username)
-            db.session.add(new_request)
-
-        db.session.commit()
-
-        # Emit a Socket.IO event to update clients
-        socketio.emit('song_list_updated')
-
-        return jsonify({'success': True})
+    if existing_request:
+        existing_request.count += 1
+        existing_request.timestamp = func.now()
     else:
-        return jsonify({'success': False, 'message': 'Song not found'}), 404
+        new_request = SongRequest(song_title=song_title, artist_name=artist_name, username=username)
+        db.session.add(new_request)
+
+    db.session.commit()
+
+    # Emit a Socket.IO event to update clients
+    socketio.emit('song_list_updated')
+
+    return jsonify({'success': True})
 
 @app.route('/get_song_list')
 @limiter.limit("10 per minute")
@@ -76,6 +65,22 @@ def remove_song(song_id):
     db.session.commit()
     socketio.emit('song_list_updated')
     return jsonify({'success': True})
+
+@app.route('/search_songs')
+@limiter.limit("10 per minute")
+def search_songs():
+    query = request.args.get('query', '')
+    videos_search = VideosSearch(query, limit=5)
+    results = videos_search.result()
+    
+    songs = []
+    for video in results['result']:
+        songs.append({
+            'title': video['title'],
+            'artist': video['channel']['name']
+        })
+    
+    return jsonify(songs)
 
 @socketio.on('connect')
 def handle_connect():
