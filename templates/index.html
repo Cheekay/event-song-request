@@ -76,6 +76,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const songTitleInput = document.getElementById('song_title');
     songTitleInput.addEventListener('input', debounce(searchSongs, 300));
+
+    // Add event delegation for requester links
+    document.getElementById('song_list').addEventListener('click', function(e) {
+        if (e.target.classList.contains('requester-link')) {
+            e.preventDefault();
+            const songId = e.target.getAttribute('data-song-id');
+            showRequesters(songId);
+        }
+    });
 });
 
 function setupWebSocket() {
@@ -104,16 +113,6 @@ function updateSongList() {
                     <td>${song.timestamp}</td>
                 `;
                 songListElement.appendChild(row);
-            });
-
-            // Add event listeners to requester links
-            const requesterLinks = document.querySelectorAll('.requester-link');
-            requesterLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const songId = this.getAttribute('data-song-id');
-                    showRequesters(songId);
-                });
             });
         });
 }
