@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h1>DJ Interface - Manage Playlist</h1>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Song Title</th>
+                <th>Artist</th>
+                <th>Requester</th>
+                <th>Requests</th>
+                <th>Last Requested</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="djSongList">
+        </tbody>
+    </table>
+</div>
+<div class="text-center mt-4">
+    <button id="removeAllSongs" class="btn btn-danger">Remove All Songs</button>
+</div>
+{% endblock %}

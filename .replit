@@ -13,10 +13,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start Flask App"
+args = "Flask Web Service"
 
 [[workflows.workflow]]
-name = "Start Flask App"
+name = "Flask Web Service"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -30,6 +30,7 @@ waitForPort = 5000
 [deployment]
 deploymentTarget = "static"
 publicDir = "public/templates"
+run = ["sh", "-c", "python main.py"]
 
 [[ports]]
 localPort = 5000
