@@ -12,7 +12,10 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 socketio = SocketIO()
 
-app = Flask(__name__)
+app = Flask(__name__, 
+    static_url_path='',  # This ensures static files are served from root
+    static_folder='static'  # This points to the static directory
+)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///song_requests.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -34,5 +37,4 @@ with app.app_context():
     db.create_all()
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=80, debug=True)
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
