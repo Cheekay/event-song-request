@@ -1,9 +1,5 @@
-from app import db
 from datetime import datetime
-# from flask_sqlalchemy import SQLAlchemy
-# from datetime import datetime
-
-# db = SQLAlchemy()
+from extensions import db
 
 class SongRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)

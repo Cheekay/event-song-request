@@ -1,5 +1,7 @@
 from flask import render_template, request, redirect, url_for, jsonify, session
-from app import app, db, socketio, limiter, SongRequest
+from extensions import db, socketio, limiter
+from models import SongRequest
+from app import app
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
 import pytz
@@ -16,7 +18,6 @@ def submit_request():
     artist_name = request.form['artist_name']
     username = request.form['username']
 
-    # Check if the song already exists in the database
     existing_request = SongRequest.query.filter_by(song_title=song_title, artist_name=artist_name).first()
 
     if existing_request:
@@ -27,10 +28,7 @@ def submit_request():
         db.session.add(new_request)
 
     db.session.commit()
-
-    # Emit a Socket.IO event to update clients
     socketio.emit('song_list_updated')
-
     return jsonify({'success': True})
 
 @app.route('/get_song_list')
