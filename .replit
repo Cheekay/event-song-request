@@ -29,8 +29,7 @@ waitForPort = 5000
 
 [deployment]
 deploymentTarget = "static"
-publicDir = "public/templates"
-run = ["sh", "-c", "python main.py"]
+publicDir = "/"
 
 [[ports]]
 localPort = 5000
