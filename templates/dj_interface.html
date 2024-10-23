@@ -1,24 +1,92 @@
-
 {% extends "base.html" %}
+
 {% block content %}
-<h1>DJ Interface - Manage Playlist</h1>
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Song Title</th>
-                <th>Artist</th>
-                <th>Requester</th>
-                <th>Requests</th>
-                <th>Last Requested</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="djSongList">
-        </tbody>
-    </table>
+<h1 class="mb-4">DJ Interface - Manage Playlist</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Song Title</th>
+            <th>Artist</th>
+            <th>Requester</th>
+            <th>Requests</th>
+            <th>Last Requested</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="dj_song_list">
+        {% for song in songs %}
+        <tr>
+            <td>{{ song.song_title }}</td>
+            <td>{{ song.artist_name }}</td>
+            <td>{{ song.username }}</td>
+            <td>{{ song.count }}</td>
+            <td>{{ song.timestamp.strftime('%m-%d %H:%M') }}</td>
+            <td>
+                <button class="btn btn-danger btn-sm remove-song" data-song-id="{{ song.id }}">Remove</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="text-center mt-5">
+    <button id="remove-all-btn" class="btn btn-danger btn-lg">Remove All Songs</button>
 </div>
-<div class="text-center mt-4">
-    <button id="removeAllSongs" class="btn btn-danger">Remove All Songs</button>
-</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const songList = document.getElementById('dj_song_list');
+    songList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-song')) {
+            const songId = e.target.getAttribute('data-song-id');
+            removeSong(songId);
+        }
+    });
+
+    const removeAllBtn = document.getElementById('remove-all-btn');
+    removeAllBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to remove all songs? This action cannot be undone.')) {
+            removeAllSongs();
+        }
+    });
+
+    // Set up WebSocket connection for real-time updates
+    setupWebSocket();
+});
+
+function setupWebSocket() {
+    const socket = io();
+    socket.on('song_list_updated', function() {
+        location.reload();
+    });
+}
+
+function removeSong(songId) {
+    fetch(`/remove_song/${songId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`button[data-song-id="${songId}"]`).closest('tr');
+                row.remove();
+            } else {
+                alert('Failed to remove song');
+            }
+        });
+}
+
+function removeAllSongs() {
+    fetch('/remove_all_songs', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to remove all songs');
+            }
+        });
+}
+</script>
 {% endblock %}

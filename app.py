@@ -5,6 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_socketio import SocketIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from datetime import datetime
 
 class Base(DeclarativeBase):
     pass
@@ -31,8 +32,19 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
+# Move SongRequest model here to avoid circular dependency
+class SongRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    song_title = db.Column(db.String(100), nullable=False)
+    artist_name = db.Column(db.String(100), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    count = db.Column(db.Integer, default=1)
+    username = db.Column(db.String(64), nullable=False)
+
+    def __repr__(self):
+        return f"<SongRequest {self.song_title} by {self.artist_name}>"
+
 with app.app_context():
-    import models
     import routes
     db.create_all()
 

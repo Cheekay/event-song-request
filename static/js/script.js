@@ -1,70 +1,61 @@
-
 document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('sort_select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', updateSortOrder);
+    }
+
+    // If we're on the song list page, set up WebSocket connection
+    if (document.getElementById('song_list')) {
+        setupWebSocket();
+        updateSongList();
+    }
+});
+
+function setupWebSocket() {
     const socket = io();
-    
-    socket.on('connect', () => {
+
+    socket.on('connect', function() {
         console.log('Connected to WebSocket');
     });
 
-    socket.on('update_songs', (data) => {
-        updateSongList(data);
+    socket.on('song_list_updated', function() {
+        updateSongList();
     });
 
-    // Song request form submission
-    const songRequestForm = document.getElementById('songRequestForm');
-    if (songRequestForm) {
-        songRequestForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = {
-                songTitle: document.getElementById('songTitle').value,
-                artistName: document.getElementById('artistName').value,
-                requesterName: document.getElementById('requesterName').value
-            };
-            socket.emit('submit_request', formData);
-            songRequestForm.reset();
-        });
+    socket.on('disconnect', function() {
+        console.log('Disconnected from WebSocket');
+    });
+}
+
+function updateSortOrder() {
+    const sortSelect = document.getElementById('sort_select');
+    if (sortSelect) {
+        const sortBy = sortSelect.value;
+        window.location.href = `/song_list?sort_by=${sortBy}`;
     }
+}
 
-    // DJ interface remove buttons
-    const removeAllBtn = document.getElementById('removeAllSongs');
-    if (removeAllBtn) {
-        removeAllBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to remove all songs?')) {
-                socket.emit('remove_all_songs');
-            }
-        });
-    }
+function updateSongList() {
+    const songListElement = document.getElementById('song_list');
+    if (!songListElement) return;
 
-    function updateSongList(songs) {
-        const songList = document.getElementById('songList') || document.getElementById('djSongList');
-        if (!songList) return;
-
-        songList.innerHTML = '';
-        songs.forEach(song => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${song.title}</td>
-                <td>${song.artist}</td>
-                <td>${song.requester}</td>
-                <td>${song.requests}</td>
-                <td>${song.lastRequested}</td>
-            `;
+    const sortSelect = document.getElementById('sort_select');
+    const sortBy = sortSelect ? sortSelect.value : 'count';
+    
+    fetch(`/get_song_list?sort_by=${sortBy}`)
+        .then(response => response.json())
+        .then(songs => {
+            songListElement.innerHTML = '';
             
-            if (document.getElementById('djSongList')) {
-                row.innerHTML += `
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="removeSong('${song.id}')">
-                            Remove
-                        </button>
-                    </td>
+            songs.forEach(song => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${song.title}</td>
+                    <td>${song.artist}</td>
+                    <td>${song.count}</td>
+                    <td>${song.timestamp}</td>
                 `;
-            }
-            
-            songList.appendChild(row);
+                songListElement.appendChild(row);
+            });
         });
-    }
-
-    window.removeSong = function(songId) {
-        socket.emit('remove_song', { id: songId });
-    };
-});
+}

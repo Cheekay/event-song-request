@@ -1,6 +1,5 @@
 from flask import render_template, request, redirect, url_for, jsonify, session
-from app import app, db, socketio, limiter
-from models import SongRequest
+from app import app, db, socketio, limiter, SongRequest
 from youtubesearchpython import VideosSearch
 from sqlalchemy import func
 import pytz
