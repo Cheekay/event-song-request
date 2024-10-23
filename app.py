@@ -2,8 +2,9 @@
 import eventlet
 eventlet.monkey_patch()
 
-import os
+
 from flask import Flask
+import os
 from extensions import db, socketio, limiter
 from models import SongRequest
 
@@ -21,8 +22,9 @@ socketio.init_app(app, async_mode='eventlet')
 limiter.init_app(app)
 
 with app.app_context():
-    import routes
     db.create_all()
+    import routes
+
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)

@@ -28,7 +28,7 @@ args = "python main.py"
 waitForPort = 5000
 
 [deployment]
-deploymentTarget = "cloudrun"
+deploymentTarget = "gce"
 run = ["sh", "-c", "python app.py"]
 
 [[ports]]
