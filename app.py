@@ -2,7 +2,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask
+from flask import Flask, jsonify
 import os
 from extensions import db, socketio, limiter
 from models import SongRequest
