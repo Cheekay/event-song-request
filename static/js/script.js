@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sortSelect = document.getElementById('sort_select');
     if (sortSelect) {
-        sortSelect.addEventListener('change', updateSortOrder);
+        sortSelect.addEventListener('change', function() {
+            updateSongList();
+        });
     }
 
     // Set up WebSocket connection and song list if we're on the appropriate page
@@ -45,10 +47,18 @@ function setupWebSocket() {
     socket.on('disconnect', function() {
         console.log('Disconnected from WebSocket');
     });
+
+    return socket;
 }
 
-function updateSortOrder() {
-    updateSongList();
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 async function updateSongList() {
@@ -99,16 +109,6 @@ async function updateSongList() {
             </tr>
         `;
     }
-}
-
-function escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return '';
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 }
 
 async function searchSongs() {

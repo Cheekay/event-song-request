@@ -4,7 +4,7 @@
 <h1 class="mb-4">Requested Songs</h1>
 <div class="mb-3">
     <label for="sort_select" class="form-label">Sort by:</label>
-    <select id="sort_select" class="form-select" onchange="updateSortOrder()">
+    <select id="sort_select" class="form-select" onchange="updateSongList()">
         <option value="count" {% if sort_by == 'count' %}selected{% endif %}>Popularity</option>
         <option value="timestamp" {% if sort_by == 'timestamp' %}selected{% endif %}>Most Recent</option>
     </select>
@@ -30,3 +30,16 @@
     </tbody>
 </table>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupWebSocket();
+    updateSongList();
+});
+
+function updateSortOrder() {
+    updateSongList();
+}
+</script>
+{% endblock extra_js %}
