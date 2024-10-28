@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sortSelect.addEventListener('change', updateSortOrder);
     }
 
-    // If we're on the song list page, set up WebSocket connection
+    // Set up WebSocket connection and song list if we're on the appropriate page
     if (document.getElementById('song_list')) {
         setupWebSocket();
         updateSongList();
