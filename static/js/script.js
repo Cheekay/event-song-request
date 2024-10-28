@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
         setupWebSocket();
         updateSongList();
     }
+
+    // Set up search functionality
+    const songTitleInput = document.getElementById('song_title');
+    if (songTitleInput) {
+        songTitleInput.addEventListener('input', debounce(searchSongs, 300));
+    }
 });
 
 function setupWebSocket() {
@@ -25,7 +31,7 @@ function setupWebSocket() {
     });
 
     socket.on('connect_error', function(error) {
-        console.error('WebSocket connection error:', error);
+        console.error('WebSocket connection error:', error.message || 'Connection failed');
     });
 
     socket.on('reconnect_attempt', function(attemptNumber) {
@@ -45,21 +51,19 @@ function updateSortOrder() {
     const sortSelect = document.getElementById('sort_select');
     if (sortSelect) {
         const sortBy = sortSelect.value;
-        window.location.href = `/song_list?sort_by=${sortBy}`;
+        updateSongList();
     }
 }
 
-function handleError(error, defaultMessage) {
-    if (error.message) {
-        return error.message;
-    } else if (error.error) {
-        return error.error;
-    } else {
-        return defaultMessage;
-    }
+function handleError(error) {
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message;
+    if (error.message) return error.message;
+    if (error.error) return error.error;
+    return 'An unexpected error occurred';
 }
 
-function updateSongList() {
+async function updateSongList() {
     const songListElement = document.getElementById('song_list');
     if (!songListElement) return;
 
@@ -67,50 +71,43 @@ function updateSongList() {
     const sortBy = sortSelect ? sortSelect.value : 'count';
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     
-    fetch(`/get_song_list?sort_by=${sortBy}&timezone=${encodeURIComponent(userTimezone)}`)
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 429) {
-                    throw new Error('Rate limit exceeded. Please wait a moment before refreshing.');
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(songs => {
-            if (!Array.isArray(songs)) {
-                if (songs.error) {
-                    throw new Error(songs.error);
-                }
-                throw new Error('Invalid response format');
-            }
-            
-            songListElement.innerHTML = '';
-            songs.forEach(song => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${escapeHtml(song.title)}</td>
-                    <td>${escapeHtml(song.artist)}</td>
-                    <td>${escapeHtml(song.username)}</td>
-                    <td>${song.count}</td>
-                    <td>${escapeHtml(song.timestamp)}</td>
-                `;
-                songListElement.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error updating song list:', handleError(error, 'Failed to update song list'));
-            songListElement.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-danger">
-                        ${handleError(error, 'Failed to update song list. Please try again later.')}
-                    </td>
-                </tr>
+    try {
+        const response = await fetch(`/get_song_list?sort_by=${sortBy}&timezone=${encodeURIComponent(userTimezone)}`);
+        if (!response.ok) {
+            throw new Error(response.status === 429 ? 
+                'Rate limit exceeded. Please wait a moment before refreshing.' : 
+                `Failed to fetch song list (Status: ${response.status})`);
+        }
+
+        const songs = await response.json();
+        if (!Array.isArray(songs)) {
+            throw new Error(songs.error || 'Invalid response format');
+        }
+        
+        songListElement.innerHTML = '';
+        songs.forEach(song => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${escapeHtml(song.title)}</td>
+                <td>${escapeHtml(song.artist)}</td>
+                <td>${escapeHtml(song.username)}</td>
+                <td>${song.count}</td>
+                <td>${escapeHtml(song.timestamp)}</td>
             `;
+            songListElement.appendChild(row);
         });
+    } catch (error) {
+        console.error('Error updating song list:', handleError(error));
+        songListElement.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-danger">
+                    ${handleError(error)}
+                </td>
+            </tr>
+        `;
+    }
 }
 
-// Utility function to prevent XSS
 function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') return '';
     return unsafe
@@ -121,7 +118,6 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
-// Add search functionality with better error handling
 async function searchSongs() {
     const query = document.getElementById('song_title').value;
     const suggestionsElement = document.getElementById('song_suggestions');
@@ -136,7 +132,7 @@ async function searchSongs() {
         if (!response.ok) {
             throw new Error(response.status === 429 ? 
                 'Too many search requests. Please wait a moment.' : 
-                'Failed to search songs');
+                `Failed to search songs (Status: ${response.status})`);
         }
 
         const data = await response.json();
@@ -145,32 +141,33 @@ async function searchSongs() {
         }
 
         suggestionsElement.innerHTML = '';
-        if (Array.isArray(data)) {
-            data.forEach(song => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.classList.add('list-group-item', 'list-group-item-action');
-                item.textContent = `${song.title} - ${song.artist}`;
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('song_title').value = song.title;
-                    document.getElementById('artist_name').value = song.artist;
-                    suggestionsElement.innerHTML = '';
-                });
-                suggestionsElement.appendChild(item);
-            });
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid response format');
         }
+
+        data.forEach(song => {
+            const item = document.createElement('a');
+            item.href = '#';
+            item.classList.add('list-group-item', 'list-group-item-action');
+            item.textContent = `${song.title} - ${song.artist}`;
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('song_title').value = song.title;
+                document.getElementById('artist_name').value = song.artist;
+                suggestionsElement.innerHTML = '';
+            });
+            suggestionsElement.appendChild(item);
+        });
     } catch (error) {
-        console.error('Error searching songs:', handleError(error, 'Failed to search songs'));
+        console.error('Error searching songs:', handleError(error));
         suggestionsElement.innerHTML = `
             <div class="list-group-item list-group-item-danger">
-                ${handleError(error, 'Failed to search songs. Please try again.')}
+                ${handleError(error)}
             </div>
         `;
     }
 }
 
-// Add debounce function for search
 function debounce(func, delay) {
     let timeoutId;
     return function() {
@@ -180,11 +177,3 @@ function debounce(func, delay) {
         timeoutId = setTimeout(() => func.apply(context, args), delay);
     };
 }
-
-// Add event listener for search input with debounce
-document.addEventListener('DOMContentLoaded', function() {
-    const songTitleInput = document.getElementById('song_title');
-    if (songTitleInput) {
-        songTitleInput.addEventListener('input', debounce(searchSongs, 300));
-    }
-});
