@@ -48,11 +48,7 @@ function setupWebSocket() {
 }
 
 function updateSortOrder() {
-    const sortSelect = document.getElementById('sort_select');
-    if (sortSelect) {
-        const sortBy = sortSelect.value;
-        updateSongList();
-    }
+    updateSongList();
 }
 
 function handleError(error) {
@@ -60,6 +56,7 @@ function handleError(error) {
     if (error instanceof Error) return error.message;
     if (error.message) return error.message;
     if (error.error) return error.error;
+    if (error.status) return `Server error (${error.status})`;
     return 'An unexpected error occurred';
 }
 
@@ -79,13 +76,17 @@ async function updateSongList() {
                 `Failed to fetch song list (Status: ${response.status})`);
         }
 
-        const songs = await response.json();
-        if (!Array.isArray(songs)) {
-            throw new Error(songs.error || 'Invalid response format');
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
         }
         
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid response format from server');
+        }
+
         songListElement.innerHTML = '';
-        songs.forEach(song => {
+        data.forEach(song => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${escapeHtml(song.title)}</td>
@@ -142,7 +143,16 @@ async function searchSongs() {
 
         suggestionsElement.innerHTML = '';
         if (!Array.isArray(data)) {
-            throw new Error('Invalid response format');
+            throw new Error('Invalid response format from server');
+        }
+
+        if (data.length === 0) {
+            suggestionsElement.innerHTML = `
+                <div class="list-group-item text-muted">
+                    No songs found matching your search
+                </div>
+            `;
+            return;
         }
 
         data.forEach(song => {
