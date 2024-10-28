@@ -95,6 +95,10 @@ function updateSongList() {
                 `;
                 songListElement.appendChild(row);
             });
+        })
+        .catch(error => {
+            console.error('Error updating song list:', error);
+            songListElement.innerHTML = '<tr><td colspan="5" class="text-center"><div class="alert alert-danger">Unable to load song list. Please try again later.</div></td></tr>';
         });
 }
 
@@ -114,37 +118,51 @@ function submitSongRequest() {
         } else {
             alert('Failed to submit song request');
         }
+    })
+    .catch(error => {
+        console.error('Error submitting request:', error);
+        alert('Failed to submit song request. Please try again later.');
     });
 }
 
 function searchSongs() {
     const query = document.getElementById('song_title').value;
+    const suggestionsElement = document.getElementById('song_suggestions');
+    
     if (query.length < 3) {
-        document.getElementById('song_suggestions').innerHTML = '';
+        suggestionsElement.innerHTML = '';
         return;
     }
 
     fetch(`/search_songs?query=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
-            const suggestionsElement = document.getElementById('song_suggestions');
             suggestionsElement.innerHTML = '';
-            data.forEach(song => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.classList.add('list-group-item', 'list-group-item-action');
-                item.textContent = `${song.title} - ${song.artist}`;
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('song_title').value = song.title;
-                    document.getElementById('artist_name').value = song.artist;
-                    suggestionsElement.innerHTML = '';
+            
+            if (data.error) {
+                suggestionsElement.innerHTML = '<div class="alert alert-danger">Unable to search songs at the moment. Please try again later.</div>';
+                return;
+            }
+            
+            if (Array.isArray(data)) {
+                data.forEach(song => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.classList.add('list-group-item', 'list-group-item-action');
+                    item.textContent = `${song.title} - ${song.artist}`;
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.getElementById('song_title').value = song.title;
+                        document.getElementById('artist_name').value = song.artist;
+                        suggestionsElement.innerHTML = '';
+                    });
+                    suggestionsElement.appendChild(item);
                 });
-                suggestionsElement.appendChild(item);
-            });
+            }
         })
         .catch(error => {
             console.error('Error searching songs:', error);
+            suggestionsElement.innerHTML = '<div class="alert alert-danger">Unable to search songs at the moment. Please try again later.</div>';
         });
 }
 
