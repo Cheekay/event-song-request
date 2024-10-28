@@ -57,6 +57,7 @@ function handleError(error) {
     if (error.message) return error.message;
     if (error.error) return error.error;
     if (error.status) return `Server error (${error.status})`;
+    if (Object.keys(error).length === 0) return 'Server is not responding';
     return 'An unexpected error occurred';
 }
 
@@ -77,6 +78,10 @@ async function updateSongList() {
         }
 
         const data = await response.json();
+        if (!data) {
+            throw new Error('No data received from server');
+        }
+        
         if (data.error) {
             throw new Error(data.error);
         }
@@ -98,7 +103,7 @@ async function updateSongList() {
             songListElement.appendChild(row);
         });
     } catch (error) {
-        console.error('Error updating song list:', handleError(error));
+        console.error('Error updating song list:', error.message || error);
         songListElement.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center text-danger">
@@ -137,6 +142,10 @@ async function searchSongs() {
         }
 
         const data = await response.json();
+        if (!data) {
+            throw new Error('No data received from server');
+        }
+
         if (data.error) {
             throw new Error(data.error);
         }
@@ -169,7 +178,7 @@ async function searchSongs() {
             suggestionsElement.appendChild(item);
         });
     } catch (error) {
-        console.error('Error searching songs:', handleError(error));
+        console.error('Error searching songs:', error.message || error);
         suggestionsElement.innerHTML = `
             <div class="list-group-item list-group-item-danger">
                 ${handleError(error)}
