@@ -6,6 +6,10 @@ from youtubesearchpython import VideosSearch
 from sqlalchemy import func
 import pytz
 from datetime import datetime
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 @app.route('/')
 def index():
@@ -90,23 +94,34 @@ def remove_all_songs():
 @app.route('/search_songs')
 @limiter.limit("10 per minute")
 def search_songs():
-    query = request.args.get('query', '')
-    videos_search = VideosSearch(query, limit=5)
-    results = videos_search.result()
-    
-    songs = []
-    for video in results['result']:
-        songs.append({
-            'title': video['title'],
-            'artist': video['channel']['name']
-        })
-    
-    return jsonify(songs)
+    try:
+        query = request.args.get('query', '')
+        if not query or len(query.strip()) < 3:
+            return jsonify([])
+
+        videos_search = VideosSearch(query, limit=5)
+        results = videos_search.result()
+        
+        songs = []
+        for video in results['result']:
+            songs.append({
+                'title': video['title'],
+                'artist': video['channel']['name']
+            })
+        
+        return jsonify(songs)
+    except Exception as e:
+        logger.error(f"Error in YouTube search: {str(e)}")
+        return jsonify({'error': 'Failed to search songs'}), 500
 
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    logger.info('Client connected')
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('Client disconnected')
+    logger.info('Client disconnected')
+
+@socketio.on_error()
+def error_handler(e):
+    logger.error(f'SocketIO error: {str(e)}')
